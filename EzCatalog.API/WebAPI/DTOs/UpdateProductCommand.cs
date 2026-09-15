@@ -1,8 +1,8 @@
 ﻿namespace EzCatalog.WebAPI.DTOs;
 
 public record UpdateProductCommand(
-    string? Name,
-    decimal? PriceAmount,
-    string? PriceCurrency)
+    string? Name = null,
+    decimal? PriceAmount = null,
+    string? PriceCurrency = null)
 {
 }

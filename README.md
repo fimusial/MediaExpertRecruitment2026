@@ -9,15 +9,15 @@
 BE:
  - ~create product endpoint~
  - ~list products endpoint with cursor~
+ - ~some more endpoints useful in the future~
  - ~appsettings~
- - ~validator with fluent validation~
- - ~exception handling and response codes~
+ - ~validators with fluent validation~
+ - ~global exception handling~
  - ~unit testing backend~
-
- - HAETEOAS
- - REST API semantics
- - Swagger
- - method and contract documentation
+ - ~REST API semantics~
+ - ~HAETEOAS~
+ - ~Swagger~
+ - ~OpenAPI~
 
 FE:
  - bootstrap
