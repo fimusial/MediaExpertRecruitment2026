@@ -25,7 +25,7 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task Handle_WithoutCursor_ReturnsFirstPageOfProducts()
+    public async Task Handle_WithoutCursor_ReturnsFirstPageOfNewestProducts()
     {
         // Arrange
         await database.SeedAsync(ProductTestData.CreateDbModels(15));
@@ -36,8 +36,8 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
         // Assert
         result.TotalCount.Should().Be(15);
         result.Products.Select(product => product.Id).Should().Equal(
-            Enumerable.Range(1, 10).Select(ProductTestData.SequentialId));
-        result.NextCursor.Should().Be(ProductTestData.SequentialId(10));
+            Enumerable.Range(6, 10).Reverse().Select(ProductTestData.SequentialId));
+        result.NextCursor.Should().Be(ProductTestData.SequentialId(6));
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
     {
         // Arrange
         await database.SeedAsync(ProductTestData.CreateDbModels(15));
-        var cursor = ProductTestData.SequentialId(10);
+        var cursor = ProductTestData.SequentialId(6);
 
         // Act
         var result = await handler.Handle(new GetProductsPageQuery(cursor, Limit), TestContext.Current.CancellationToken);
@@ -53,7 +53,7 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
         // Assert
         result.TotalCount.Should().Be(15);
         result.Products.Select(product => product.Id).Should().Equal(
-            Enumerable.Range(11, 5).Select(ProductTestData.SequentialId));
+            Enumerable.Range(1, 5).Reverse().Select(ProductTestData.SequentialId));
         result.NextCursor.Should().BeNull();
     }
 

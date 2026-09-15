@@ -50,7 +50,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(Limit - 1);
-        IdsOf(result).Should().Equal(SequentialIds(1, Limit - 1));
+        IdsOf(result).Should().Equal(IdsDescending(from: Limit - 1, to: 1));
         result.NextCursor.Should().BeNull();
     }
 
@@ -65,7 +65,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(Limit);
-        IdsOf(result).Should().Equal(SequentialIds(1, Limit));
+        IdsOf(result).Should().Equal(IdsDescending(from: Limit, to: 1));
         result.NextCursor.Should().BeNull();
     }
 
@@ -80,21 +80,21 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(Limit + 1);
-        IdsOf(result).Should().Equal(SequentialIds(1, Limit));
-        result.NextCursor.Should().Be(ProductTestData.SequentialId(Limit));
+        IdsOf(result).Should().Equal(IdsDescending(from: Limit + 1, to: 2));
+        result.NextCursor.Should().Be(ProductTestData.SequentialId(2));
     }
 
     [Fact]
-    public async Task GetProductsPageAsync_ReturnsProductsOrderedById()
+    public async Task GetProductsPageAsync_ReturnsProductsOrderedByIdDescending()
     {
         // Arrange
-        await database.SeedAsync(ProductTestData.CreateDbModels(5).Reverse().ToArray());
+        await database.SeedAsync(ProductTestData.CreateDbModels(5));
 
         // Act
         var result = await queryService.GetProductsPageAsync(null, Limit, TestContext.Current.CancellationToken);
 
         // Assert
-        IdsOf(result).Should().Equal(SequentialIds(1, 5));
+        IdsOf(result).Should().Equal(IdsDescending(from: 5, to: 1));
     }
 
     [Fact]
@@ -105,23 +105,23 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Act
         var result = await queryService.GetProductsPageAsync(
-            ProductTestData.SequentialId(3), Limit, TestContext.Current.CancellationToken);
+            ProductTestData.SequentialId(13), Limit, TestContext.Current.CancellationToken);
 
         // Assert
         result.TotalCount.Should().Be(15);
-        IdsOf(result).Should().Equal(SequentialIds(4, 10));
-        result.NextCursor.Should().Be(ProductTestData.SequentialId(13));
+        IdsOf(result).Should().Equal(IdsDescending(from: 12, to: 3));
+        result.NextCursor.Should().Be(ProductTestData.SequentialId(3));
     }
 
     [Fact]
-    public async Task GetProductsPageAsync_WithCursorOfLastProduct_ReturnsEmptyPageWithoutCursor()
+    public async Task GetProductsPageAsync_WithCursorOfOldestProduct_ReturnsEmptyPageWithoutCursor()
     {
         // Arrange
         await database.SeedAsync(ProductTestData.CreateDbModels(5));
 
         // Act
         var result = await queryService.GetProductsPageAsync(
-            ProductTestData.SequentialId(5), Limit, TestContext.Current.CancellationToken);
+            ProductTestData.SequentialId(1), Limit, TestContext.Current.CancellationToken);
 
         // Assert
         result.TotalCount.Should().Be(5);
@@ -130,7 +130,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task GetProductsPageAsync_WithCursorNotMatchingAnyProduct_ReturnsProductsWithGreaterIds()
+    public async Task GetProductsPageAsync_WithCursorNotMatchingAnyProduct_ReturnsProductsWithSmallerIds()
     {
         // Arrange
         await database.SeedAsync(
@@ -140,10 +140,10 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Act
         var result = await queryService.GetProductsPageAsync(
-            ProductTestData.SequentialId(3), Limit, TestContext.Current.CancellationToken);
+            ProductTestData.SequentialId(5), Limit, TestContext.Current.CancellationToken);
 
         // Assert
-        IdsOf(result).Should().Equal(ProductTestData.SequentialId(4), ProductTestData.SequentialId(6));
+        IdsOf(result).Should().Equal(ProductTestData.SequentialId(4), ProductTestData.SequentialId(2));
     }
 
     [Fact]
@@ -168,7 +168,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Assert
         pageSizes.Should().Equal(Limit, Limit, 5);
-        collectedIds.Should().Equal(SequentialIds(1, productCount));
+        collectedIds.Should().Equal(IdsDescending(from: productCount, to: 1));
     }
 
     [Fact]
@@ -204,6 +204,6 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
     private static IEnumerable<Guid> IdsOf(ProductsPageResult page) => page.Products.Select(product => product.Id);
 
-    private static IEnumerable<Guid> SequentialIds(int start, int count) =>
-        Enumerable.Range(start, count).Select(ProductTestData.SequentialId);
+    private static IEnumerable<Guid> IdsDescending(int from, int to) =>
+        Enumerable.Range(to, from - to + 1).Reverse().Select(ProductTestData.SequentialId);
 }
