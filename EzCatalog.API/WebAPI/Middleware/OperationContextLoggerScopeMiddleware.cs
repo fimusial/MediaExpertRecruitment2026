@@ -7,6 +7,8 @@ namespace EzCatalog.WebAPI;
 
 public class OperationContextLoggerScopeMiddleware
 {
+    public const string CorrelationIdHeaderName = "X-Correlation-ID";
+
     private readonly RequestDelegate next;
 
     public OperationContextLoggerScopeMiddleware(RequestDelegate next)
@@ -16,7 +18,14 @@ public class OperationContextLoggerScopeMiddleware
 
     public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
     {
-        using var loggerScope = serviceProvider.CreateOperationContextLoggerScope();
+        using var loggerScope = serviceProvider.CreateOperationContextLoggerScope(ReadCorrelationId(context));
         await next(context);
+    }
+
+    private static Guid? ReadCorrelationId(HttpContext context)
+    {
+        return Guid.TryParse(context.Request.Headers[CorrelationIdHeaderName], out var correlationId)
+            ? correlationId
+            : null;
     }
 }

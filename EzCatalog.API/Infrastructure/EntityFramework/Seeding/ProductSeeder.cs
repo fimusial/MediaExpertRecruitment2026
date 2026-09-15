@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using EzCatalog.Application.Ports;
 using EzCatalog.Domain.Products;
 using EzCatalog.Infrastructure.EntityFramework.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace EzCatalog.Infrastructure.EntityFramework.Seeding;
 
@@ -81,30 +80,18 @@ public class ProductSeeder
     {
         ArgumentOutOfRangeException.ThrowIfNegative(productCount);
 
-        var usedSkus = await dbContext.Products
-            .Select(product => product.Sku)
-            .ToHashSetAsync(cancellationToken);
-
         var products = Enumerable.Range(0, productCount)
-            .Select(_ => ToDbModel(CreateProduct(usedSkus)))
+            .Select(index => ToDbModel(CreateProduct(index)))
             .ToList();
 
         dbContext.Products.AddRange(products);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static string GenerateUniqueSku(ProductTemplate template, string brand, HashSet<string> usedSkus)
+    private static string GenerateSku(ProductTemplate template, string brand, int index)
     {
         var brandCode = new string(brand.Where(char.IsAsciiLetterOrDigit).Take(3).ToArray()).ToUpperInvariant();
-
-        string sku;
-        do
-        {
-            sku = $"{template.SkuPrefix}-{brandCode}-{Random.Shared.Next(0, 1_000_000):D6}";
-        }
-        while (!usedSkus.Add(sku));
-
-        return sku;
+        return $"{template.SkuPrefix}-{brandCode}-{index}";
     }
 
     private static ProductDbModel ToDbModel(Product product) => new ProductDbModel
@@ -118,13 +105,13 @@ public class ProductSeeder
 
     private static T Pick<T>(IReadOnlyList<T> items) => items[Random.Shared.Next(items.Count)];
 
-    private Product CreateProduct(HashSet<string> usedSkus)
+    private Product CreateProduct(int index)
     {
         var template = Pick(Templates);
         var brand = Pick(template.Brands);
 
         var id = ProductId.Create(guidProvider.GetNewGuid());
-        var sku = Sku.Create(GenerateUniqueSku(template, brand, usedSkus));
+        var sku = Sku.Create(GenerateSku(template, brand, index));
         var name = ProductName.Create($"{brand} {template.Category} {Pick(template.Models)} {Pick(template.Variants)}");
         var price = new Money(Random.Shared.Next(template.MinPrice, template.MaxPrice + 1) - 0.01m, Pick(Currencies));
 

@@ -18,16 +18,6 @@ public record Money(decimal Amount, Currency Currency)
         return Add(other.Amount);
     }
 
-    public Money Multiply(Money other)
-    {
-        if (Currency != other.Currency)
-        {
-            throw new InvalidOperationException("When multiplying Money object, currencies must match.");
-        }
-
-        return Multiply(other.Amount);
-    }
-
     public override string ToString()
     {
         return $"{Amount} {Currency}";

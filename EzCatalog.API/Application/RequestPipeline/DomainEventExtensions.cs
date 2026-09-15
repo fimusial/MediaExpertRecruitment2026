@@ -4,7 +4,7 @@ using MediatR;
 
 namespace EzCatalog.Application.RequestPipeline;
 
-public static class EventExtensions
+public static class DomainEventExtensions
 {
     public static INotification ToNotification(this IDomainEvent domainEvent)
     {

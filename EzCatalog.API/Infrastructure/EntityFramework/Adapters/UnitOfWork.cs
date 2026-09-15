@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EzCatalog.Application.Ports;
 using EzCatalog.Infrastructure.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +11,13 @@ namespace EzCatalog.Infrastructure.EntityFramework.Adapters;
 
 public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 {
+    // only needed for the in-memory case
+    private static readonly SemaphoreSlim InMemoryWriteLock = new SemaphoreSlim(1, 1);
+
     private readonly ILogger<UnitOfWork> logger;
     private readonly CatalogDbContext catalogDbContext;
     private IDbContextTransaction? currentTransaction;
+    private bool holdsInMemoryWriteLock;
 
     public UnitOfWork(
         ILogger<UnitOfWork> logger,
@@ -31,10 +36,25 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
             throw new InvalidOperationException("This unit of work has already initiated a transaction.");
         }
 
-        currentTransaction = await catalogDbContext.Database.BeginTransactionAsync(cancellationToken);
+        if (catalogDbContext.Database.IsInMemory())
+        {
+            await InMemoryWriteLock.WaitAsync(cancellationToken);
+            holdsInMemoryWriteLock = true;
+        }
+
+        try
+        {
+            currentTransaction = await catalogDbContext.Database.BeginTransactionAsync(cancellationToken);
+        }
+        catch
+        {
+            ReleaseInMemoryWriteLock();
+            throw;
+        }
 
         if (currentTransaction is null)
         {
+            ReleaseInMemoryWriteLock();
             throw new InvalidOperationException("Could not begin transaction.");
         }
 
@@ -56,6 +76,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
         logger.LogUnitOfWorkStep(nameof(CommitTransactionAsync), logTransactionId);
 
         currentTransaction = null;
+        ReleaseInMemoryWriteLock();
     }
 
     public async ValueTask DisposeAsync()
@@ -67,5 +88,17 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 
         var logTransactionId = currentTransaction?.TransactionId;
         logger.LogUnitOfWorkStep(nameof(DisposeAsync), logTransactionId);
+
+        currentTransaction = null;
+        ReleaseInMemoryWriteLock();
+    }
+
+    private void ReleaseInMemoryWriteLock()
+    {
+        if (holdsInMemoryWriteLock)
+        {
+            holdsInMemoryWriteLock = false;
+            InMemoryWriteLock.Release();
+        }
     }
 }

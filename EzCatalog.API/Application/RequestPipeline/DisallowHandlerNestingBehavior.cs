@@ -22,6 +22,14 @@ public class DisallowHandlerNestingBehavior<TRequest, TResponse>
         }
 
         Nested = true;
-        return await next(cancellationToken);
+
+        try
+        {
+            return await next(cancellationToken);
+        }
+        finally
+        {
+            Nested = false;
+        }
     }
 }

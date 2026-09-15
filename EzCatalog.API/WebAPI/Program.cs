@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading;
@@ -11,6 +10,7 @@ using EzCatalog.Infrastructure;
 using EzCatalog.Infrastructure.EntityFramework;
 using EzCatalog.WebAPI;
 using EzCatalog.WebAPI.ApiDocumentation;
+using EzCatalog.WebAPI.DTOs;
 using EzCatalog.WebAPI.Hypermedia;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -18,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,20 +26,21 @@ builder.Logging.AddJsonConsole(formatterOptions =>
 {
     formatterOptions.IncludeScopes = true;
     formatterOptions.UseUtcTimestamp = true;
-    formatterOptions.JsonWriterOptions = new JsonWriterOptions { Indented = true };
+    formatterOptions.JsonWriterOptions = new JsonWriterOptions
+    {
+        Indented = builder.Configuration.GetValue<bool>("IndentJsonLogs"),
+    };
 });
-
-builder.Configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"));
-builder.Configuration.AddEnvironmentVariables();
 
 builder.Services
     .AddApplication()
     .AddInfrastructure()
-    .AddWebAPI();
+    .AddWebAPI(builder.Configuration);
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseMiddleware<OperationContextLoggerScopeMiddleware>();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
@@ -85,10 +85,11 @@ app.MapGet(
 app.MapPost(
     "/products",
     async (
-        [FromBody] AddProductCommand command,
+        [FromBody] AddProductRequest request,
         IMediator mediator,
         CancellationToken cancellationToken) =>
     {
+        var command = new AddProductCommand(request.Sku, request.Name, request.PriceAmount, request.PriceCurrency);
         var id = await mediator.Send(command, cancellationToken);
         return TypedResults.CreatedAtRoute(EndpointNames.GetProduct, new { id });
     })
@@ -107,11 +108,11 @@ app.MapPatch(
     "/products/{id}",
     async (
         [FromRoute] Guid id,
-        [FromBody] EzCatalog.WebAPI.DTOs.UpdateProductCommand dto,
+        [FromBody] UpdateProductRequest request,
         IMediator mediator,
         CancellationToken cancellationToken) =>
     {
-        var command = new UpdateProductCommand(id, dto.Name, dto.PriceAmount, dto.PriceCurrency);
+        var command = new UpdateProductCommand(id, request.Name, request.PriceAmount, request.PriceCurrency);
         await mediator.Send(command, cancellationToken);
         return TypedResults.NoContent();
     })
@@ -146,20 +147,13 @@ app.MapGet(
     .ProducesValidationProblem()
     .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-using var cts = new CancellationTokenSource();
-Console.CancelKeyPress += (sender, e) =>
-{
-    Console.WriteLine("Ctrl+C pressed.");
-    e.Cancel = true;
-    cts.Cancel();
-};
-
 var isGeneratingOpenApiDocument = Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider";
 
 if (app.Configuration.GetValue<bool>("SeedTestDataOnStartup") && !isGeneratingOpenApiDocument)
 {
-    var catalogDbContext = app.Services.GetRequiredService<CatalogDbContext>();
-    await catalogDbContext.Database.EnsureCreatedAsync(cts.Token);
+    await using var seedingScope = app.Services.CreateAsyncScope();
+    var catalogDbContext = seedingScope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+    await catalogDbContext.Database.EnsureCreatedAsync(app.Lifetime.ApplicationStopping);
 }
 
-await app.RunAsync(cts.Token);
+await app.RunAsync();

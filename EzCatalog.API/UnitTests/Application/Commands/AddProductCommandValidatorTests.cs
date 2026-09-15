@@ -1,5 +1,7 @@
 using System.Linq;
 using EzCatalog.Application.Commands;
+using EzCatalog.Application.Validators;
+using EzCatalog.Domain.Products;
 using FluentAssertions;
 using Xunit;
 
@@ -104,6 +106,55 @@ public sealed class AddProductCommandValidatorTests
             PropertyName = nameof(AddProductCommand.PriceAmount),
             ErrorMessage = "Product price must be positive.",
         });
+    }
+
+    [Theory]
+    [InlineData(0.001)]
+    [InlineData(19.999)]
+    public void Validate_WithMorePriceDecimalPlacesThanAllowed_ReturnsPriceAmountError(decimal priceAmount)
+    {
+        // Arrange
+        var command = CreateValidCommand() with { PriceAmount = priceAmount };
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            PropertyName = nameof(AddProductCommand.PriceAmount),
+            ErrorMessage = ProductRuleBuilderExtensions.PriceTooPreciseMessage,
+        });
+    }
+
+    [Fact]
+    public void Validate_WithPriceAboveMaxAmount_ReturnsPriceAmountError()
+    {
+        // Arrange
+        var command = CreateValidCommand() with { PriceAmount = Product.PriceMaxAmount + 1m };
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            PropertyName = nameof(AddProductCommand.PriceAmount),
+            ErrorMessage = ProductRuleBuilderExtensions.PriceTooLargeMessage,
+        });
+    }
+
+    [Fact]
+    public void Validate_WithPriceAtMaxAmount_ReturnsNoErrors()
+    {
+        // Arrange
+        var command = CreateValidCommand() with { PriceAmount = Product.PriceMaxAmount };
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().BeEmpty();
     }
 
     [Theory]

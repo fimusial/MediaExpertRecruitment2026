@@ -322,6 +322,73 @@ public sealed class ProductTests
         result.Should().Be($"Product {ProductGuid}");
     }
 
+    [Theory]
+    [InlineData(0.001)]
+    [InlineData(19.999)]
+    public void New_WithPriceBelowSmallestUnit_ThrowsInvalidPriceException(decimal amount)
+    {
+        // Arrange
+        var price = new Money(amount, Currency.PLN);
+
+        // Act
+        var act = () => ProductTestData.CreateProduct(priceAmount: amount);
+
+        // Assert
+        act.Should().Throw<InvalidPriceException>()
+            .WithMessage($"Invalid Product price: {price}. It must have at most 2 decimal places.");
+    }
+
+    [Fact]
+    public void New_WithPriceAboveMaxAmount_ThrowsInvalidPriceException()
+    {
+        // Arrange
+        var amount = Product.PriceMaxAmount + 1m;
+        var price = new Money(amount, Currency.PLN);
+
+        // Act
+        var act = () => ProductTestData.CreateProduct(priceAmount: amount);
+
+        // Assert
+        act.Should().Throw<InvalidPriceException>()
+            .WithMessage($"Invalid Product price: {price}. It must not exceed {Product.PriceMaxAmount}.");
+    }
+
+    [Fact]
+    public void New_WithPriceAtMaxAmount_CreatesProduct()
+    {
+        // Act
+        var product = ProductTestData.CreateProduct(priceAmount: Product.PriceMaxAmount);
+
+        // Assert
+        product.Price.Amount.Should().Be(Product.PriceMaxAmount);
+    }
+
+    [Fact]
+    public void New_WithTrailingZerosInPrice_CreatesProduct()
+    {
+        // Act
+        var product = ProductTestData.CreateProduct(priceAmount: 10.500m);
+
+        // Assert
+        product.Price.Amount.Should().Be(10.5m);
+    }
+
+    [Fact]
+    public void UpdatePrice_WithTooManyDecimalPlaces_ThrowsInvalidPriceExceptionAndKeepsPrice()
+    {
+        // Arrange
+        var product = CreateTransferredProduct();
+        var originalPrice = product.Price;
+
+        // Act
+        var act = () => product.UpdatePrice(new Money(12.345m, Currency.PLN));
+
+        // Assert
+        act.Should().Throw<InvalidPriceException>();
+        product.Price.Should().Be(originalPrice);
+        product.GetPublishedDomainEvents().Should().BeEmpty();
+    }
+
     private static Product CreateTransferredProduct() =>
         Product.Rehydrate(ProductGuid, "LAP-DEL-000001", "Dell Laptop", 100.00m, "PLN");
 }

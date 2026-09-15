@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using EzCatalog.Domain.Products;
 using FluentValidation;
 
@@ -6,6 +7,14 @@ namespace EzCatalog.Application.Validators;
 
 public static class ProductRuleBuilderExtensions
 {
+    public const string PriceNotPositiveMessage = "Product price must be positive.";
+
+    public static readonly string PriceTooLargeMessage =
+        $"Product price must not exceed {Product.PriceMaxAmount.ToString(CultureInfo.InvariantCulture)}.";
+
+    public static readonly string PriceTooPreciseMessage =
+        $"Product price must have at most {Product.PriceMaxDecimalPlaces} decimal places.";
+
     public static IRuleBuilderOptionsConditions<T, string?> MustBeValidSku<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder.Custom((value, context) =>
@@ -33,14 +42,22 @@ public static class ProductRuleBuilderExtensions
         return ruleBuilder
             .NotEmpty()
             .GreaterThan(0.0m)
-            .WithMessage("Product price must be positive.");
+            .WithMessage(PriceNotPositiveMessage)
+            .LessThanOrEqualTo(Product.PriceMaxAmount)
+            .WithMessage(PriceTooLargeMessage)
+            .Must(amount => amount is null || HasAllowedDecimalPlaces(amount.Value))
+            .WithMessage(PriceTooPreciseMessage);
     }
 
     public static IRuleBuilderOptions<T, decimal> MustBeValidPriceAmount<T>(this IRuleBuilder<T, decimal> ruleBuilder)
     {
         return ruleBuilder
             .GreaterThan(0.0m)
-            .WithMessage("Product price must be positive.");
+            .WithMessage(PriceNotPositiveMessage)
+            .LessThanOrEqualTo(Product.PriceMaxAmount)
+            .WithMessage(PriceTooLargeMessage)
+            .Must(HasAllowedDecimalPlaces)
+            .WithMessage(PriceTooPreciseMessage);
     }
 
     public static IRuleBuilderOptions<T, string?> MustBeValidCurrencyNullable<T>(this IRuleBuilder<T, string?> ruleBuilder)
@@ -65,4 +82,7 @@ public static class ProductRuleBuilderExtensions
             .NotEmpty()
             .WithMessage($"{nameof(ProductId)} cannot be empty.");
     }
+
+    private static bool HasAllowedDecimalPlaces(decimal amount) =>
+        decimal.Round(amount, Product.PriceMaxDecimalPlaces) == amount;
 }

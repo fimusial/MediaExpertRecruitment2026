@@ -6,6 +6,10 @@ namespace EzCatalog.Domain.Products;
 
 public class Product : AggregateRoot
 {
+    public const int PriceMaxDecimalPlaces = 2;
+
+    public const decimal PriceMaxAmount = 9_999_999_999_999_999.99m;
+
     private Product(ProductId id, Sku sku, ProductName name, Money price)
     {
         ThrowIfPriceInvalid(price);
@@ -64,6 +68,17 @@ public class Product : AggregateRoot
         if (price.Amount <= 0.0m)
         {
             throw new InvalidPriceException($"Invalid Product price: {price}. It must be positive.");
+        }
+
+        if (price.Amount > PriceMaxAmount)
+        {
+            throw new InvalidPriceException($"Invalid Product price: {price}. It must not exceed {PriceMaxAmount}.");
+        }
+
+        if (decimal.Round(price.Amount, PriceMaxDecimalPlaces) != price.Amount)
+        {
+            throw new InvalidPriceException(
+                $"Invalid Product price: {price}. It must have at most {PriceMaxDecimalPlaces} decimal places.");
         }
     }
 }

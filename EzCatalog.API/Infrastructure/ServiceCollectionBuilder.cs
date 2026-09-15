@@ -41,9 +41,7 @@ public static class ServiceCollectionBuilder
                     })
                     .UseInMemoryDatabase(InMemoryDatabaseName)
                     .ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-            },
-            ServiceLifetime.Singleton,
-            ServiceLifetime.Singleton);
+            });
 
         return serviceCollection;
     }

@@ -109,35 +109,6 @@ public sealed class MoneyTests
             .WithMessage("When adding Money objects, currencies must match.");
     }
 
-    [Fact]
-    public void Multiply_WithMoneyOfSameCurrency_ReturnsProduct()
-    {
-        // Arrange
-        var money = new Money(10.00m, Currency.PLN);
-        var other = new Money(1.5m, Currency.PLN);
-
-        // Act
-        var result = money.Multiply(other);
-
-        // Assert
-        result.Should().Be(new Money(15.00m, Currency.PLN));
-    }
-
-    [Fact]
-    public void Multiply_WithMoneyOfDifferentCurrency_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var money = new Money(10.00m, Currency.PLN);
-        var other = new Money(1.5m, Currency.USD);
-
-        // Act
-        var act = () => money.Multiply(other);
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("When multiplying Money object, currencies must match.");
-    }
-
     [Theory]
     [InlineData("", "12.50 PLN")]
     [InlineData("pl-PL", "12,50 PLN")]

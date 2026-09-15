@@ -122,7 +122,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateProductCommand"
+                "$ref": "#/components/schemas/UpdateProductRequest"
               }
             }
           },
@@ -187,7 +187,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AddProductCommand"
+                "$ref": "#/components/schemas/AddProductRequest"
               }
             }
           },
@@ -304,7 +304,7 @@
   },
   "components": {
     "schemas": {
-      "AddProductCommand": {
+      "AddProductRequest": {
         "required": [
           "sku",
           "name",
@@ -573,7 +573,7 @@
           }
         }
       },
-      "UpdateProductCommand": {
+      "UpdateProductRequest": {
         "type": "object",
         "properties": {
           "name": {

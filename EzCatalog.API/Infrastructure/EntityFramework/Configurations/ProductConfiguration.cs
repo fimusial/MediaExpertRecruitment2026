@@ -9,6 +9,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<ProductDbModel>
 {
     private const int CurrencyCodeLength = 3;
 
+    private const int PriceAmountPrecision = 18;
+
     public void Configure(EntityTypeBuilder<ProductDbModel> builder)
     {
         builder.HasKey(product => product.Id);
@@ -28,6 +30,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<ProductDbModel>
             .IsRequired();
 
         builder.Property(product => product.PriceAmount)
+            .HasPrecision(PriceAmountPrecision, Product.PriceMaxDecimalPlaces)
             .IsRequired();
 
         builder.Property(product => product.PriceCurrency)

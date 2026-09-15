@@ -59,7 +59,7 @@ public sealed class OpenApiDocumentTests : IClassFixture<CatalogApiFactory>
         var document = await GetOpenApiDocumentAsync();
 
         // Assert
-        document["components"]!["schemas"]!["UpdateProductCommand"]!.AsObject().Should().NotContainKey("required");
+        document["components"]!["schemas"]!["UpdateProductRequest"]!.AsObject().Should().NotContainKey("required");
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public sealed class OpenApiDocumentTests : IClassFixture<CatalogApiFactory>
     }
 
     [Theory]
-    [InlineData("AddProductCommand")]
+    [InlineData("AddProductRequest")]
     [InlineData("ProductResponse")]
     public async Task OpenApiDocument_DescribesCurrencyValues(string schemaName)
     {
@@ -109,7 +109,7 @@ public sealed class OpenApiDocumentTests : IClassFixture<CatalogApiFactory>
         var document = await GetOpenApiDocumentAsync();
 
         // Assert
-        var currency = document["components"]!["schemas"]!["UpdateProductCommand"]!["properties"]!["priceCurrency"]!;
+        var currency = document["components"]!["schemas"]!["UpdateProductRequest"]!["properties"]!["priceCurrency"]!;
         currency["enum"]!.AsArray().Select(value => value?.GetValue<string>())
             .Should().Equal([.. Enum.GetNames<Currency>(), null]);
     }
