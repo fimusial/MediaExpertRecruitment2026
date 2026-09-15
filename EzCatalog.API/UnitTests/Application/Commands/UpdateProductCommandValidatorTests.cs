@@ -25,10 +25,10 @@ public sealed class UpdateProductCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_WithOnlyIdProvided_ReturnsNoErrors()
+    public void Validate_WithOnlyNameProvided_ReturnsNoErrors()
     {
         // Arrange
-        var command = new UpdateProductCommand(ProductTestData.DefaultId, null, null, null);
+        var command = new UpdateProductCommand(ProductTestData.DefaultId, "New name", null, null);
 
         // Act
         var result = validator.Validate(command);
@@ -38,10 +38,65 @@ public sealed class UpdateProductCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_WithEmptyId_ReturnsIdError()
+    public void Validate_WithOnlyPriceProvided_ReturnsNoErrors()
+    {
+        // Arrange
+        var command = new UpdateProductCommand(ProductTestData.DefaultId, null, 19.99m, "EUR");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_WithOnlyIdProvided_ReturnsNothingToUpdateError()
+    {
+        // Arrange
+        var command = new UpdateProductCommand(ProductTestData.DefaultId, null, null, null);
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            PropertyName = string.Empty,
+            ErrorMessage = UpdateProductCommandValidator.NothingToUpdateMessage,
+        });
+    }
+
+    [Fact]
+    public void Validate_WithEmptyIdAndNothingToUpdate_ReturnsBothErrors()
     {
         // Arrange
         var command = new UpdateProductCommand(Guid.Empty, null, null, null);
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().BeEquivalentTo(new[]
+        {
+            new
+            {
+                PropertyName = nameof(UpdateProductCommand.Id),
+                ErrorMessage = "ProductId cannot be empty.",
+            },
+            new
+            {
+                PropertyName = string.Empty,
+                ErrorMessage = UpdateProductCommandValidator.NothingToUpdateMessage,
+            },
+        });
+    }
+
+    [Fact]
+    public void Validate_WithEmptyId_ReturnsIdError()
+    {
+        // Arrange
+        var command = new UpdateProductCommand(Guid.Empty, "New name", null, null);
 
         // Act
         var result = validator.Validate(command);
