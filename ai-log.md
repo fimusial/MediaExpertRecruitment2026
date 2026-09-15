@@ -8,3 +8,4 @@ In order to keep my use of AI honest and transparent in this recruitment, this l
  - add a seeder which creates dummy data for testing
  - generate Command and Query validators based on Domain
  - generate an exception handling middleware in the WebAPI project
+ - generate unit tests for the  API
