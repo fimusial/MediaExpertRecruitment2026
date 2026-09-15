@@ -35,7 +35,7 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(15);
-        result.products.Select(product => product.Id).Should().Equal(
+        result.Products.Select(product => product.Id).Should().Equal(
             Enumerable.Range(1, 10).Select(ProductTestData.SequentialId));
         result.NextCursor.Should().Be(ProductTestData.SequentialId(10));
     }
@@ -52,7 +52,7 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(15);
-        result.products.Select(product => product.Id).Should().Equal(
+        result.Products.Select(product => product.Id).Should().Equal(
             Enumerable.Range(11, 5).Select(ProductTestData.SequentialId));
         result.NextCursor.Should().BeNull();
     }
@@ -65,7 +65,7 @@ public sealed class GetProductsPageQueryHandlerTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(0);
-        result.products.Should().BeEmpty();
+        result.Products.Should().BeEmpty();
         result.NextCursor.Should().BeNull();
     }
 

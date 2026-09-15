@@ -6,5 +6,5 @@ namespace EzCatalog.Infrastructure.Adapters;
 
 public class GuidProvider : IGuidProvider
 {
-    public Guid GetNewGuid() => GuidV7.NewSqlGuid();
+    public Guid GetNewGuid() => GuidV7.NewGuid();
 }

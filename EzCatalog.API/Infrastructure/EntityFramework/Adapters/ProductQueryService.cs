@@ -24,8 +24,8 @@ public class ProductQueryService : IProductQueryService
 
         var products = await catalogDbContext
             .Products
-            .OrderBy(x => x.Id)
-            .Where(x => cursor == null || x.Id > cursor)
+            .OrderByDescending(x => x.Id)
+            .Where(x => cursor == null || x.Id < cursor)
             .Take(limit + 1)
             .Select(x => ProductResult.FromProduct(
                 Product.Rehydrate(x.Id, x.Sku, x.Name, x.PriceAmount, x.PriceCurrency)))

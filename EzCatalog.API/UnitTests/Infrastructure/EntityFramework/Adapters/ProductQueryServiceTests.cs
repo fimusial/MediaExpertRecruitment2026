@@ -35,7 +35,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(0);
-        result.products.Should().BeEmpty();
+        result.Products.Should().BeEmpty();
         result.NextCursor.Should().BeNull();
     }
 
@@ -125,7 +125,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
         // Assert
         result.TotalCount.Should().Be(5);
-        result.products.Should().BeEmpty();
+        result.Products.Should().BeEmpty();
         result.NextCursor.Should().BeNull();
     }
 
@@ -160,7 +160,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
         do
         {
             var page = await queryService.GetProductsPageAsync(cursor, Limit, TestContext.Current.CancellationToken);
-            pageSizes.Add(page.products.Count());
+            pageSizes.Add(page.Products.Count());
             collectedIds.AddRange(IdsOf(page));
             cursor = page.NextCursor;
         }
@@ -183,7 +183,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
         var result = await queryService.GetProductsPageAsync(null, Limit, TestContext.Current.CancellationToken);
 
         // Assert
-        result.products.Should().ContainSingle()
+        result.Products.Should().ContainSingle()
             .Which.Should().Be(new ProductResult(id, "TV-SAM-000042", "Samsung TV", 2499.50m, "EUR"));
     }
 
@@ -202,7 +202,7 @@ public sealed class ProductQueryServiceTests : IAsyncDisposable
 
     public ValueTask DisposeAsync() => dbContext.DisposeAsync();
 
-    private static IEnumerable<Guid> IdsOf(ProductsPageResult page) => page.products.Select(product => product.Id);
+    private static IEnumerable<Guid> IdsOf(ProductsPageResult page) => page.Products.Select(product => product.Id);
 
     private static IEnumerable<Guid> SequentialIds(int start, int count) =>
         Enumerable.Range(start, count).Select(ProductTestData.SequentialId);

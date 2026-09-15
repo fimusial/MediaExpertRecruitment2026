@@ -5,6 +5,9 @@ namespace EzCatalog.Application.Commands;
 
 public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
+    public const string PriceIncompleteMessage =
+        $"{nameof(UpdateProductCommand.PriceAmount)} and {nameof(UpdateProductCommand.PriceCurrency)} must be provided together.";
+
     public UpdateProductCommandValidator()
     {
         RuleFor(command => command.Id).MustBeValidProductId();
@@ -14,12 +17,21 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
             .When(command => command.Name != null);
 
         RuleFor(command => command.PriceAmount)
+            .NotNull()
+            .WithMessage(PriceIncompleteMessage)
+            .When(command => command.PriceCurrency != null);
+
+        RuleFor(command => command.PriceCurrency)
+            .NotNull()
+            .WithMessage(PriceIncompleteMessage)
+            .When(command => command.PriceAmount != null);
+
+        RuleFor(command => command.PriceAmount)
             .MustBeValidPriceAmountNullable()
-            .When(command => command.PriceCurrency != null)
-            .OverridePropertyName(nameof(UpdateProductCommand.PriceAmount));
+            .When(command => command.PriceAmount != null);
 
         RuleFor(command => command.PriceCurrency)
             .MustBeValidCurrencyNullable()
-            .When(command => command.PriceAmount != null);
+            .When(command => command.PriceCurrency != null);
     }
 }

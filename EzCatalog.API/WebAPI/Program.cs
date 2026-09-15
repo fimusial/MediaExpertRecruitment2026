@@ -60,7 +60,7 @@ app.MapPost(
         CancellationToken cancellationToken) =>
     {
         var id = await mediator.Send(command, cancellationToken);
-        return Results.Created("/products/{id}", id);
+        return TypedResults.CreatedAtRoute("GetProduct", new { id });
     })
     .WithName("AddProduct");
 
@@ -74,7 +74,7 @@ app.MapPatch(
     {
         var command = new UpdateProductCommand(id, dto.Name, dto.PriceAmount, dto.PriceCurrency);
         await mediator.Send(command, cancellationToken);
-        return Results.Accepted("/products/{id}", id);
+        return Results.NoContent();
     })
     .WithName("UpdateProduct");
 
@@ -82,11 +82,11 @@ app.MapGet(
     "/products",
     async (
         [FromQuery] Guid? cursor,
-        [FromQuery] int limit,
+        [FromQuery] int? limit,
         IMediator mediator,
         CancellationToken cancellationToken) =>
     {
-        var results = await mediator.Send(new GetProductsPageQuery(cursor, limit), cancellationToken);
+        var results = await mediator.Send(new GetProductsPageQuery(cursor, limit ?? GetProductsPageQuery.DefaultLimit), cancellationToken);
         return Results.Ok(results);
     })
     .WithName("GetProductsPage");

@@ -128,7 +128,7 @@ public sealed class UpdateProductCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_WithPriceAmountWithoutCurrency_ReturnsCurrencyError()
+    public void Validate_WithPriceAmountWithoutCurrency_ReturnsPriceIncompleteError()
     {
         // Arrange
         var command = new UpdateProductCommand(ProductTestData.DefaultId, null, 10m, null);
@@ -140,12 +140,12 @@ public sealed class UpdateProductCommandValidatorTests
         result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
         {
             PropertyName = nameof(UpdateProductCommand.PriceCurrency),
-            ErrorCode = "NotEmptyValidator",
+            ErrorMessage = UpdateProductCommandValidator.PriceIncompleteMessage,
         });
     }
 
     [Fact]
-    public void Validate_WithCurrencyWithoutPriceAmount_ReturnsPriceAmountError()
+    public void Validate_WithCurrencyWithoutPriceAmount_ReturnsPriceIncompleteError()
     {
         // Arrange
         var command = new UpdateProductCommand(ProductTestData.DefaultId, null, null, "EUR");
@@ -157,7 +157,57 @@ public sealed class UpdateProductCommandValidatorTests
         result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
         {
             PropertyName = nameof(UpdateProductCommand.PriceAmount),
-            ErrorCode = "NotEmptyValidator",
+            ErrorMessage = UpdateProductCommandValidator.PriceIncompleteMessage,
+        });
+    }
+
+    [Fact]
+    public void Validate_WithInvalidPriceAmountWithoutCurrency_ReturnsBothErrors()
+    {
+        // Arrange
+        var command = new UpdateProductCommand(ProductTestData.DefaultId, null, -1m, null);
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().BeEquivalentTo(new[]
+        {
+            new
+            {
+                PropertyName = nameof(UpdateProductCommand.PriceCurrency),
+                ErrorMessage = UpdateProductCommandValidator.PriceIncompleteMessage,
+            },
+            new
+            {
+                PropertyName = nameof(UpdateProductCommand.PriceAmount),
+                ErrorMessage = "Product price must be positive.",
+            },
+        });
+    }
+
+    [Fact]
+    public void Validate_WithUnknownCurrencyWithoutPriceAmount_ReturnsBothErrors()
+    {
+        // Arrange
+        var command = new UpdateProductCommand(ProductTestData.DefaultId, null, null, "GBP");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.Errors.Should().BeEquivalentTo(new[]
+        {
+            new
+            {
+                PropertyName = nameof(UpdateProductCommand.PriceAmount),
+                ErrorMessage = UpdateProductCommandValidator.PriceIncompleteMessage,
+            },
+            new
+            {
+                PropertyName = nameof(UpdateProductCommand.PriceCurrency),
+                ErrorMessage = "Currency must be one of: PLN, EUR, USD.",
+            },
         });
     }
 
