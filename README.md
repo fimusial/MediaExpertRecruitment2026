@@ -8,6 +8,7 @@
 ### TODOS:
 BE:
  - ~create product endpoint~
+ - appsettings
  - list products endpoint (with cursor?)
  - validator with fluent validation
  - exception handling and response codes

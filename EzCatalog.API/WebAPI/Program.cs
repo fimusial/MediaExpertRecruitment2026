@@ -6,12 +6,15 @@ using EzCatalog.Application;
 using EzCatalog.Application.Commands;
 using EzCatalog.Application.Queries;
 using EzCatalog.Infrastructure;
+using EzCatalog.Infrastructure.EntityFramework;
 using EzCatalog.WebAPI;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +27,6 @@ builder.Logging.AddJsonConsole(formatterOptions =>
 });
 
 builder.Configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"));
-
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services
@@ -35,7 +37,6 @@ builder.Services
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-
 app.UseMiddleware<OperationContextLoggerScopeMiddleware>();
 
 app.MapGet(
@@ -79,13 +80,28 @@ app.MapPatch(
 app.MapGet(
     "/products",
     async (
-        [FromBody] GetProductsPageQuery query,
+        [FromQuery] Guid? cursor,
+        [FromQuery] int limit,
         IMediator mediator,
         CancellationToken cancellationToken) =>
     {
-        var results = await mediator.Send(query, cancellationToken);
+        var results = await mediator.Send(new GetProductsPageQuery(cursor, limit), cancellationToken);
         return Results.Ok(results);
     })
     .WithName("GetProductsPage");
 
-app.Run();
+using var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (sender, e) =>
+{
+    Console.WriteLine("Ctrl+C pressed.");
+    e.Cancel = true;
+    cts.Cancel();
+};
+
+if (app.Configuration.GetValue<bool>("SeedTestDataOnStartup"))
+{
+    var catalogDbContext = app.Services.GetRequiredService<CatalogDbContext>();
+    await catalogDbContext.Database.EnsureCreatedAsync(cts.Token);
+}
+
+await app.RunAsync(cts.Token);

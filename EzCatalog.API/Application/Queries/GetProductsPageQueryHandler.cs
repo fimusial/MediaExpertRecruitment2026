@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EzCatalog.Application.Ports;
@@ -7,7 +5,7 @@ using MediatR;
 
 namespace EzCatalog.Application.Queries;
 
-public class GetProductsPageQueryHandler : IRequestHandler<GetProductsPageQuery, IEnumerable<ProductResult>>
+public class GetProductsPageQueryHandler : IRequestHandler<GetProductsPageQuery, ProductsPageResult>
 {
     private readonly IProductQueryService queryService;
 
@@ -16,8 +14,8 @@ public class GetProductsPageQueryHandler : IRequestHandler<GetProductsPageQuery,
         this.queryService = queryService;
     }
 
-    public async Task<IEnumerable<ProductResult>> Handle(GetProductsPageQuery query, CancellationToken cancellationToken)
+    public Task<ProductsPageResult> Handle(GetProductsPageQuery query, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException(nameof(GetProductsPageQueryHandler));
+        return queryService.GetProductsPageAsync(query.Cursor, query.Limit, cancellationToken);
     }
 }

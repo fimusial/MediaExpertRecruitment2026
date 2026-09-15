@@ -1,6 +1,11 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EzCatalog.Application.Queries;
+
 namespace EzCatalog.Application.Ports;
 
 public interface IProductQueryService
 {
-    // TODO: Get products with cursor pagination
+    Task<ProductsPageResult> GetProductsPageAsync(Guid? cursor, int limit, CancellationToken cancellationToken);
 }

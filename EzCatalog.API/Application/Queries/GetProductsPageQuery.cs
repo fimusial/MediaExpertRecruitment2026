@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+using System;
 using MediatR;
 
 namespace EzCatalog.Application.Queries;
 
-public record GetProductsPageQuery(string Cursor, int Limit)
-    : IRequest<IEnumerable<ProductResult>>
+public record GetProductsPageQuery(Guid? Cursor, int Limit)
+    : IRequest<ProductsPageResult>
 {
 }

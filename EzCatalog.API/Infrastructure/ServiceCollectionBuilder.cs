@@ -2,6 +2,7 @@ using EzCatalog.Application.Ports;
 using EzCatalog.Infrastructure.Adapters;
 using EzCatalog.Infrastructure.EntityFramework;
 using EzCatalog.Infrastructure.EntityFramework.Adapters;
+using EzCatalog.Infrastructure.EntityFramework.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,7 @@ namespace EzCatalog.Infrastructure;
 public static class ServiceCollectionBuilder
 {
     public const string InMemoryDatabaseName = "EzCatalog";
+    public const int InMemoryDatabaseSeedCount = 1000;
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection serviceCollection)
     {
@@ -32,6 +34,11 @@ public static class ServiceCollectionBuilder
             options =>
             {
                 options
+                    .UseAsyncSeeding((catalogDbContext, _, cancellationToken) =>
+                    {
+                        return new ProductSeeder((CatalogDbContext)catalogDbContext, new GuidProvider())
+                            .SeedAsync(InMemoryDatabaseSeedCount, cancellationToken);
+                    })
                     .UseInMemoryDatabase(InMemoryDatabaseName)
                     .ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             },
