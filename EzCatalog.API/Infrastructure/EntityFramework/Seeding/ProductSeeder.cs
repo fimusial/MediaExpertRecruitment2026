@@ -128,6 +128,6 @@ public class ProductSeeder
         var name = ProductName.Create($"{brand} {template.Category} {Pick(template.Models)} {Pick(template.Variants)}");
         var price = new Money(Random.Shared.Next(template.MinPrice, template.MaxPrice + 1) - 0.01m, Pick(Currencies));
 
-        return new Product(id, sku, name, price);
+        return Product.New(id, sku, name, price);
     }
 }

@@ -13,7 +13,7 @@ public sealed class ProductTests
     private static readonly Guid ProductGuid = ProductTestData.DefaultId;
 
     [Fact]
-    public void Constructor_WithValidArguments_SetsProperties()
+    public void New_WithValidArguments_SetsProperties()
     {
         // Arrange
         var id = ProductId.Create(ProductGuid);
@@ -22,7 +22,7 @@ public sealed class ProductTests
         var price = new Money(4999.99m, Currency.PLN);
 
         // Act
-        var product = new Product(id, sku, name, price);
+        var product = Product.New(id, sku, name, price);
 
         // Assert
         product.Id.Should().Be(id);
@@ -32,10 +32,14 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void Constructor_WithValidArguments_PublishesSingleProductCreatedEvent()
+    public void New_WithValidArguments_PublishesSingleProductCreatedEvent()
     {
         // Act
-        var product = ProductTestData.CreateProduct(id: ProductGuid);
+        var product = Product.New(
+            ProductId.Create(ProductGuid),
+            Sku.Create(ProductTestData.DefaultSku),
+            ProductName.Create(ProductTestData.DefaultName),
+            new Money(ProductTestData.DefaultPriceAmount, ProductTestData.DefaultCurrency));
 
         // Assert
         product.GetPublishedDomainEvents().Should().ContainSingle()
@@ -47,13 +51,13 @@ public sealed class ProductTests
     [InlineData(0.00)]
     [InlineData(-0.01)]
     [InlineData(-100)]
-    public void Constructor_WithNonPositivePrice_ThrowsInvalidPriceException(decimal amount)
+    public void New_WithNonPositivePrice_ThrowsInvalidPriceException(decimal amount)
     {
         // Arrange
         var price = new Money(amount, Currency.PLN);
 
         // Act
-        var act = () => new Product(
+        var act = () => Product.New(
             ProductId.Create(ProductGuid),
             Sku.Create(ProductTestData.DefaultSku),
             ProductName.Create(ProductTestData.DefaultName),
@@ -65,7 +69,7 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void Constructor_WithSmallestPositivePrice_CreatesProduct()
+    public void New_WithSmallestPositivePrice_CreatesProduct()
     {
         // Act
         var product = ProductTestData.CreateProduct(priceAmount: 0.01m);
@@ -75,10 +79,10 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void Create_WithValidPrimitives_CreatesProductWithNormalizedValues()
+    public void Transfer_WithValidPrimitives_CreatesProductWithNormalizedValues()
     {
         // Act
-        var product = Product.Create(ProductGuid, " lap-del-000001 ", "  Dell Laptop  ", 4999.99m, "EUR");
+        var product = Product.Rehydrate(ProductGuid, " lap-del-000001 ", "  Dell Laptop  ", 4999.99m, "EUR");
 
         // Assert
         product.Id.Value.Should().Be(ProductGuid);
@@ -88,52 +92,52 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void Create_WithValidPrimitives_PublishesSingleProductCreatedEvent()
+    public void Transfer_WithValidPrimitives_PublishesNoDomainEvents()
     {
         // Act
-        var product = Product.Create(ProductGuid, "LAP-DEL-000001", "Dell Laptop", 4999.99m, "USD");
+        var product = CreateTransferredProduct();
 
         // Assert
-        product.GetPublishedDomainEvents().Should().ContainSingle()
-            .Which.Should().BeOfType<ProductCreated>()
-            .Which.EntityId.Should().Be(ProductGuid);
+        product.GetPublishedDomainEvents().Should().BeEmpty();
     }
 
     [Fact]
-    public void Create_WithEmptyId_ThrowsArgumentOutOfRangeException()
+    public void Transfer_WithEmptyId_ThrowsArgumentOutOfRangeException()
     {
         // Act
-        var act = () => Product.Create(Guid.Empty, "LAP-DEL-000001", "Dell Laptop", 4999.99m, "PLN");
+        var act = () => Product.Rehydrate(Guid.Empty, "LAP-DEL-000001", "Dell Laptop", 4999.99m, "PLN");
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]
-    public void Create_WithInvalidSku_ThrowsInvalidSkuException()
+    public void Transfer_WithInvalidSku_ThrowsInvalidSkuException()
     {
         // Act
-        var act = () => Product.Create(ProductGuid, "-invalid-", "Dell Laptop", 4999.99m, "PLN");
+        var act = () => Product.Rehydrate(ProductGuid, "-invalid-", "Dell Laptop", 4999.99m, "PLN");
 
         // Assert
         act.Should().Throw<InvalidSkuException>();
     }
 
     [Fact]
-    public void Create_WithInvalidName_ThrowsInvalidProductNameException()
+    public void Transfer_WithInvalidName_ThrowsInvalidProductNameException()
     {
         // Act
-        var act = () => Product.Create(ProductGuid, "LAP-DEL-000001", " ", 4999.99m, "PLN");
+        var act = () => Product.Rehydrate(ProductGuid, "LAP-DEL-000001", " ", 4999.99m, "PLN");
 
         // Assert
         act.Should().Throw<InvalidProductNameException>();
     }
 
-    [Fact]
-    public void Create_WithNonPositivePrice_ThrowsInvalidPriceException()
+    [Theory]
+    [InlineData(0.00)]
+    [InlineData(-0.01)]
+    public void Transfer_WithNonPositivePrice_ThrowsInvalidPriceException(decimal amount)
     {
         // Act
-        var act = () => Product.Create(ProductGuid, "LAP-DEL-000001", "Dell Laptop", 0m, "PLN");
+        var act = () => Product.Rehydrate(ProductGuid, "LAP-DEL-000001", "Dell Laptop", amount, "PLN");
 
         // Assert
         act.Should().Throw<InvalidPriceException>();
@@ -143,10 +147,10 @@ public sealed class ProductTests
     [InlineData("GBP")]
     [InlineData("pln")]
     [InlineData("")]
-    public void Create_WithUnknownCurrency_ThrowsArgumentException(string currency)
+    public void Transfer_WithUnknownCurrency_ThrowsArgumentException(string currency)
     {
         // Act
-        var act = () => Product.Create(ProductGuid, "LAP-DEL-000001", "Dell Laptop", 4999.99m, currency);
+        var act = () => Product.Rehydrate(ProductGuid, "LAP-DEL-000001", "Dell Laptop", 4999.99m, currency);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -156,7 +160,7 @@ public sealed class ProductTests
     public void UpdateName_ChangesName()
     {
         // Arrange
-        var product = ProductTestData.CreateProduct(name: "Old name");
+        var product = CreateTransferredProduct();
         var newName = ProductName.Create("New name");
 
         // Act
@@ -167,7 +171,22 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void UpdateName_AppendsProductNameChangedEvent()
+    public void UpdateName_PublishesSingleProductNameChangedEvent()
+    {
+        // Arrange
+        var product = CreateTransferredProduct();
+
+        // Act
+        product.UpdateName(ProductName.Create("New name"));
+
+        // Assert
+        product.GetPublishedDomainEvents().Should().ContainSingle()
+            .Which.Should().BeOfType<ProductNameChanged>()
+            .Which.EntityId.Should().Be(ProductGuid);
+    }
+
+    [Fact]
+    public void UpdateName_OnNewProduct_AppendsEventAfterProductCreated()
     {
         // Arrange
         var product = ProductTestData.CreateProduct(id: ProductGuid);
@@ -178,15 +197,14 @@ public sealed class ProductTests
         // Assert
         product.GetPublishedDomainEvents().Should().SatisfyRespectively(
             first => first.Should().BeOfType<ProductCreated>(),
-            second => second.Should().BeOfType<ProductNameChanged>()
-                .Which.EntityId.Should().Be(ProductGuid));
+            second => second.Should().BeOfType<ProductNameChanged>());
     }
 
     [Fact]
     public void UpdateName_DoesNotChangeOtherProperties()
     {
         // Arrange
-        var product = ProductTestData.CreateProduct();
+        var product = CreateTransferredProduct();
         var (id, sku, price) = (product.Id, product.Sku, product.Price);
 
         // Act
@@ -202,7 +220,7 @@ public sealed class ProductTests
     public void UpdatePrice_WithPositivePrice_ChangesPrice()
     {
         // Arrange
-        var product = ProductTestData.CreateProduct(priceAmount: 100m, currency: Currency.PLN);
+        var product = CreateTransferredProduct();
         var newPrice = new Money(25.99m, Currency.EUR);
 
         // Act
@@ -213,7 +231,22 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void UpdatePrice_WithPositivePrice_AppendsProductPriceChangedEvent()
+    public void UpdatePrice_WithPositivePrice_PublishesSingleProductPriceChangedEvent()
+    {
+        // Arrange
+        var product = CreateTransferredProduct();
+
+        // Act
+        product.UpdatePrice(new Money(25.99m, Currency.EUR));
+
+        // Assert
+        product.GetPublishedDomainEvents().Should().ContainSingle()
+            .Which.Should().BeOfType<ProductPriceChanged>()
+            .Which.EntityId.Should().Be(ProductGuid);
+    }
+
+    [Fact]
+    public void UpdatePrice_OnNewProduct_AppendsEventAfterProductCreated()
     {
         // Arrange
         var product = ProductTestData.CreateProduct(id: ProductGuid);
@@ -224,15 +257,14 @@ public sealed class ProductTests
         // Assert
         product.GetPublishedDomainEvents().Should().SatisfyRespectively(
             first => first.Should().BeOfType<ProductCreated>(),
-            second => second.Should().BeOfType<ProductPriceChanged>()
-                .Which.EntityId.Should().Be(ProductGuid));
+            second => second.Should().BeOfType<ProductPriceChanged>());
     }
 
     [Fact]
     public void UpdatePrice_WithPositivePrice_DoesNotChangeOtherProperties()
     {
         // Arrange
-        var product = ProductTestData.CreateProduct();
+        var product = CreateTransferredProduct();
         var (id, sku, name) = (product.Id, product.Sku, product.Name);
 
         // Act
@@ -250,7 +282,7 @@ public sealed class ProductTests
     public void UpdatePrice_WithNonPositivePrice_ThrowsInvalidPriceException(decimal amount)
     {
         // Arrange
-        var product = ProductTestData.CreateProduct();
+        var product = CreateTransferredProduct();
         var newPrice = new Money(amount, Currency.PLN);
 
         // Act
@@ -262,10 +294,10 @@ public sealed class ProductTests
     }
 
     [Fact]
-    public void UpdatePrice_WithNonPositivePrice_KeepsPriceAndDoesNotAppendEvent()
+    public void UpdatePrice_WithNonPositivePrice_KeepsPriceAndPublishesNoEvent()
     {
         // Arrange
-        var product = ProductTestData.CreateProduct(priceAmount: 100m);
+        var product = CreateTransferredProduct();
         var originalPrice = product.Price;
 
         // Act
@@ -274,15 +306,14 @@ public sealed class ProductTests
         // Assert
         act.Should().Throw<InvalidPriceException>();
         product.Price.Should().Be(originalPrice);
-        product.GetPublishedDomainEvents().Should().ContainSingle()
-            .Which.Should().BeOfType<ProductCreated>();
+        product.GetPublishedDomainEvents().Should().BeEmpty();
     }
 
     [Fact]
     public void ToString_ReturnsTypeNameAndId()
     {
         // Arrange
-        var product = ProductTestData.CreateProduct(id: ProductGuid);
+        var product = CreateTransferredProduct();
 
         // Act
         var result = product.ToString();
@@ -290,4 +321,7 @@ public sealed class ProductTests
         // Assert
         result.Should().Be($"Product {ProductGuid}");
     }
+
+    private static Product CreateTransferredProduct() =>
+        Product.Rehydrate(ProductGuid, "LAP-DEL-000001", "Dell Laptop", 100.00m, "PLN");
 }

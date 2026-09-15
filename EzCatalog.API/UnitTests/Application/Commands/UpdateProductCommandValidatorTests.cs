@@ -128,7 +128,7 @@ public sealed class UpdateProductCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_WithPriceAmountWithoutCurrency_ReturnsNoErrors()
+    public void Validate_WithPriceAmountWithoutCurrency_ReturnsCurrencyError()
     {
         // Arrange
         var command = new UpdateProductCommand(ProductTestData.DefaultId, null, 10m, null);
@@ -137,11 +137,15 @@ public sealed class UpdateProductCommandValidatorTests
         var result = validator.Validate(command);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            PropertyName = nameof(UpdateProductCommand.PriceCurrency),
+            ErrorCode = "NotEmptyValidator",
+        });
     }
 
     [Fact]
-    public void Validate_WithCurrencyWithoutPriceAmount_ReturnsNoErrors()
+    public void Validate_WithCurrencyWithoutPriceAmount_ReturnsPriceAmountError()
     {
         // Arrange
         var command = new UpdateProductCommand(ProductTestData.DefaultId, null, null, "EUR");
@@ -150,7 +154,11 @@ public sealed class UpdateProductCommandValidatorTests
         var result = validator.Validate(command);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            PropertyName = nameof(UpdateProductCommand.PriceAmount),
+            ErrorCode = "NotEmptyValidator",
+        });
     }
 
     [Fact]

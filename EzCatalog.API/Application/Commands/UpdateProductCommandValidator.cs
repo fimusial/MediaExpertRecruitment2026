@@ -13,13 +13,13 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
             .MustBeValidProductName()
             .When(command => command.Name != null);
 
-        RuleFor(command => command.PriceAmount!.Value)
-            .MustBeValidPriceAmount()
-            .When(command => command.PriceAmount != null)
+        RuleFor(command => command.PriceAmount)
+            .MustBeValidPriceAmountNullable()
+            .When(command => command.PriceCurrency != null)
             .OverridePropertyName(nameof(UpdateProductCommand.PriceAmount));
 
         RuleFor(command => command.PriceCurrency)
-            .MustBeValidCurrency()
-            .When(command => command.PriceCurrency != null);
+            .MustBeValidCurrencyNullable()
+            .When(command => command.PriceAmount != null);
     }
 }

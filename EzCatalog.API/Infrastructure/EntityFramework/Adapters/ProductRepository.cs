@@ -30,7 +30,7 @@ public class ProductRepository : IProductRepository
             return null;
         }
 
-        return Product.Create(
+        return Product.Rehydrate(
             dbModel.Id,
             dbModel.Sku,
             dbModel.Name,

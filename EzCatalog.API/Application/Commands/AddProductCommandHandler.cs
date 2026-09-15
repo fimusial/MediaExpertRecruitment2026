@@ -33,12 +33,11 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Guid>
     {
         logger.LogHandlerRunning(nameof(AddProductCommandHandler));
 
-        var product = Product.Create(
-            guidProvider.GetNewGuid(),
-            command.Sku,
-            command.Name,
-            command.PriceAmount,
-            command.PriceCurrency);
+        var product = Product.New(
+            ProductId.Create(guidProvider.GetNewGuid()),
+            Sku.Create(command.Sku),
+            ProductName.Create(command.Name),
+            new Money(command.PriceAmount, Enum.Parse<Currency>(command.PriceCurrency)));
 
         var id = await repository.AddAsync(product, cancellationToken);
         await mediator.DispatchDomainEventsAsync(product, cancellationToken);

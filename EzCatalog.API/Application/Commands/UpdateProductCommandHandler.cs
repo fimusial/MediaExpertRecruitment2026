@@ -29,7 +29,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 
     public async Task<Unit> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
-        logger.LogHandlerRunning(nameof(AddProductCommandHandler));
+        logger.LogHandlerRunning(nameof(UpdateProductCommandHandler));
 
         var product = await repository.GetAsync(ProductId.Create(command.Id), cancellationToken);
         if (product == null)

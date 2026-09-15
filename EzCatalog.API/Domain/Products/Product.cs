@@ -6,16 +6,14 @@ namespace EzCatalog.Domain.Products;
 
 public class Product : AggregateRoot
 {
-    public Product(ProductId id, Sku sku, ProductName productName, Money price)
+    private Product(ProductId id, Sku sku, ProductName name, Money price)
     {
         ThrowIfPriceInvalid(price);
 
         Id = id;
         Sku = sku;
-        Name = productName;
+        Name = name;
         Price = price;
-
-        DomainEvents.Add(new ProductCreated(Id));
     }
 
     public ProductId Id { get; }
@@ -26,7 +24,14 @@ public class Product : AggregateRoot
 
     public Money Price { get; private set; }
 
-    public static Product Create(Guid id, string sku, string name, decimal priceAmount, string priceCurrency)
+    public static Product New(ProductId id, Sku sku, ProductName name, Money price)
+    {
+        var product = new Product(id, sku, name, price);
+        product.DomainEvents.Add(new ProductCreated(id));
+        return product;
+    }
+
+    public static Product Rehydrate(Guid id, string sku, string name, decimal priceAmount, string priceCurrency)
     {
         return new Product(
                 ProductId.Create(id),

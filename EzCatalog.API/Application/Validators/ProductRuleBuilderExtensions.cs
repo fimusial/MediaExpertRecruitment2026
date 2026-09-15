@@ -28,6 +28,14 @@ public static class ProductRuleBuilderExtensions
         });
     }
 
+    public static IRuleBuilderOptions<T, decimal?> MustBeValidPriceAmountNullable<T>(this IRuleBuilder<T, decimal?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .GreaterThan(0.0m)
+            .WithMessage("Product price must be positive.");
+    }
+
     public static IRuleBuilderOptions<T, decimal> MustBeValidPriceAmount<T>(this IRuleBuilder<T, decimal> ruleBuilder)
     {
         return ruleBuilder
@@ -35,10 +43,18 @@ public static class ProductRuleBuilderExtensions
             .WithMessage("Product price must be positive.");
     }
 
-    public static IRuleBuilderOptions<T, string?> MustBeValidCurrency<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    public static IRuleBuilderOptions<T, string?> MustBeValidCurrencyNullable<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()
+            .IsEnumName(typeof(Currency))
+            .WithMessage($"Currency must be one of: {string.Join(", ", Enum.GetNames<Currency>())}.");
+    }
+
+    public static IRuleBuilderOptions<T, string> MustBeValidCurrency<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotNull()
             .IsEnumName(typeof(Currency))
             .WithMessage($"Currency must be one of: {string.Join(", ", Enum.GetNames<Currency>())}.");
     }

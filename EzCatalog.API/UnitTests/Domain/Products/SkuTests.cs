@@ -121,7 +121,7 @@ public sealed class SkuTests
     [InlineData("AB_CD")]
     [InlineData("AB CD")]
     [InlineData("AB.CD")]
-    [InlineData("ĄBĆD")]
+    [InlineData("\u0104B\u0106D")]
     public void TryCreate_WithCharactersNotMatchingPattern_ReturnsFalseAndPatternError(string value)
     {
         // Act

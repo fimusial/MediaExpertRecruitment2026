@@ -111,6 +111,7 @@ public sealed class AddProductCommandValidatorTests
     [InlineData("pln")]
     [InlineData("1")]
     [InlineData(" PLN")]
+    [InlineData("")]
     public void Validate_WithUnknownCurrency_ReturnsCurrencyError(string priceCurrency)
     {
         // Arrange
@@ -127,21 +128,21 @@ public sealed class AddProductCommandValidatorTests
         });
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void Validate_WithMissingCurrency_ReturnsNotEmptyError(string? priceCurrency)
+    [Fact]
+    public void Validate_WithNullCurrency_ReturnsNotNullError()
     {
         // Arrange
-        var command = CreateValidCommand() with { PriceCurrency = priceCurrency! };
+        var command = CreateValidCommand() with { PriceCurrency = null! };
 
         // Act
         var result = validator.Validate(command);
 
         // Assert
-        result.Errors.Should().NotBeEmpty()
-            .And.OnlyContain(error => error.PropertyName == nameof(AddProductCommand.PriceCurrency))
-            .And.Contain(error => error.ErrorCode == "NotEmptyValidator");
+        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            PropertyName = nameof(AddProductCommand.PriceCurrency),
+            ErrorCode = "NotNullValidator",
+        });
     }
 
     [Fact]

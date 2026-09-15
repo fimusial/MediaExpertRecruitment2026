@@ -21,7 +21,7 @@ public static class ProductTestData
         decimal priceAmount = DefaultPriceAmount,
         Currency currency = DefaultCurrency)
     {
-        return new Product(
+        return Product.New(
             ProductId.Create(id ?? DefaultId),
             Sku.Create(sku),
             ProductName.Create(name),

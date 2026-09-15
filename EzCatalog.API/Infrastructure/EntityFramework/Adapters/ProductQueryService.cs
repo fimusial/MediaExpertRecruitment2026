@@ -28,7 +28,7 @@ public class ProductQueryService : IProductQueryService
             .Where(x => cursor == null || x.Id > cursor)
             .Take(limit + 1)
             .Select(x => ProductResult.FromProduct(
-                Product.Create(x.Id, x.Sku, x.Name, x.PriceAmount, x.PriceCurrency)))
+                Product.Rehydrate(x.Id, x.Sku, x.Name, x.PriceAmount, x.PriceCurrency)))
             .ToListAsync(cancellationToken);
 
         Guid? nextCursor = null;

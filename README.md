@@ -12,7 +12,7 @@ BE:
  - ~appsettings~
  - ~validator with fluent validation~
  - ~exception handling and response codes~
- - unit testing backend
+ - ~unit testing backend~
 
  - HAETEOAS
  - REST API semantics
