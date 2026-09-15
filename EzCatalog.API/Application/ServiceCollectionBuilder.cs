@@ -1,5 +1,6 @@
 using EzCatalog.Application.Contexts;
 using EzCatalog.Application.RequestPipeline;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,8 @@ public static class ServiceCollectionBuilder
     {
         serviceCollection
             .AddMediatR(config => config.RegisterServicesFromAssembly(typeof(ServiceCollectionBuilder).Assembly))
+            .AddValidatorsFromAssembly(typeof(ServiceCollectionBuilder).Assembly)
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>))
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(DisallowHandlerNestingBehavior<,>))
             .AddScoped<IOperationContext, OperationContext>();

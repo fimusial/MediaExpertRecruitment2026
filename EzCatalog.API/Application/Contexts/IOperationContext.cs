@@ -8,5 +8,5 @@ public interface IOperationContext
 
     DateTime UtcTimestamp { get; }
 
-    Guid CorrelationId { get; set; }
+    Guid? CorrelationId { get; set; }
 }

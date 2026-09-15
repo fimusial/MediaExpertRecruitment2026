@@ -17,17 +17,9 @@ public class OperationContext : IOperationContext
 
     public DateTime UtcTimestamp { get; }
 
-    public Guid CorrelationId
+    public Guid? CorrelationId
     {
-        get
-        {
-            if (!correlationId.HasValue)
-            {
-                correlationId = Guid.NewGuid();
-            }
-
-            return correlationId.Value;
-        }
+        get => correlationId;
 
         set
         {

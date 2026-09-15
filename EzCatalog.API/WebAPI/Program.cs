@@ -38,6 +38,7 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<OperationContextLoggerScopeMiddleware>();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapGet(
     "/products/{id}",

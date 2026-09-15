@@ -66,7 +66,7 @@ public class ProductRepository : IProductRepository
 
         if (dbModel == null)
         {
-            throw new UpdateFailedException($"Expected to update {product}, but DB model was not found.");
+            throw new UpdateFailedException($"Expected to update {product}, but it was not found.");
         }
 
         dbModel.Name = product.Name.Value;

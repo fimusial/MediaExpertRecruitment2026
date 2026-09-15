@@ -21,7 +21,6 @@ public class UnitOfWorkBehavior<TRequest, TResponse>
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        // TODO: ensure this only runs for commands
         if (unitOfWork.HasOngoingTransaction)
         {
             return await next(cancellationToken);

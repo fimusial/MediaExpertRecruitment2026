@@ -18,13 +18,13 @@ public static class LoggingServiceProviderExtensions
             operationContext.CorrelationId = continueWithCorrelationId.Value;
         }
 
-        var logProperties = new Dictionary<string, object>
+        var logProperties = new Dictionary<string, object?>
         {
             { nameof(operationContext.OperationId), operationContext.OperationId },
             { nameof(operationContext.UtcTimestamp), operationContext.UtcTimestamp.ToString(ZuluDateTime.Format) },
             { nameof(operationContext.CorrelationId), operationContext.CorrelationId },
         };
 
-        return logger.BeginScope(logProperties) ?? throw new InvalidOperationException("could not create logger scope");
+        return logger.BeginScope(logProperties) ?? throw new InvalidOperationException("Could not create logger scope.");
     }
 }

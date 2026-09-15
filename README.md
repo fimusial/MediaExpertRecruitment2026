@@ -8,11 +8,12 @@
 ### TODOS:
 BE:
  - ~create product endpoint~
- - appsettings
- - list products endpoint (with cursor?)
- - validator with fluent validation
- - exception handling and response codes
+ - ~list products endpoint with cursor~
+ - ~appsettings~
+ - ~validator with fluent validation~
+ - ~exception handling and response codes~
  - unit testing backend
+
  - HAETEOAS
  - REST API semantics
  - Swagger
