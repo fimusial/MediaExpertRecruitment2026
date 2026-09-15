@@ -13,6 +13,7 @@ BE:
  - add Swager and OpenAPI spec
  - generate ALL unit tests for the API
  - last check: did I miss something? is something clearly wrong?
+ - help with README
 
 FE:
 ...
