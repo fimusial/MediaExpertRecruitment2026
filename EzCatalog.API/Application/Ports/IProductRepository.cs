@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EzCatalog.Domain.Products;
 
@@ -8,7 +9,7 @@ public interface IProductRepository
 {
     Task<Product?> GetAsync(ProductId id, CancellationToken cancellationToken);
 
-    Task AddAsync(Product product, CancellationToken cancellationToken);
+    Task<Guid> AddAsync(Product product, CancellationToken cancellationToken);
 
     Task UpdateAsync(Product product, CancellationToken cancellationToken);
 }

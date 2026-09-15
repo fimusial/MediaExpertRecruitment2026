@@ -38,30 +38,43 @@ app.UseHttpsRedirection();
 
 app.UseMiddleware<OperationContextLoggerScopeMiddleware>();
 
+app.MapGet(
+    "/products/{id}",
+    async (
+        [FromRoute] Guid id,
+        IMediator mediator,
+        CancellationToken cancellationToken) =>
+    {
+        var product = await mediator.Send(new GetProductQuery(id), cancellationToken);
+        return Results.Ok(product);
+    })
+    .WithName("GetProduct");
+
 app.MapPost(
     "/products",
     async (
         [FromBody] AddProductCommand command,
         IMediator mediator,
         CancellationToken cancellationToken) =>
-{
-    await mediator.Send(command, cancellationToken);
-    return Results.Created();
-});
+    {
+        var id = await mediator.Send(command, cancellationToken);
+        return Results.Created("/products/{id}", id);
+    })
+    .WithName("AddProduct");
 
 app.MapPatch(
     "/products/{id}",
     async (
         [FromRoute] Guid id,
-        [FromBody] UpdateProductCommand command,
+        [FromBody] EzCatalog.WebAPI.DTOs.UpdateProductCommand dto,
         IMediator mediator,
         CancellationToken cancellationToken) =>
-{
-    // TODO: separate API model
-    command = new UpdateProductCommand(id, command.Name, command.PriceAmount, command.PriceCurrency);
-    await mediator.Send(command, cancellationToken);
-    return Results.NoContent();
-});
+    {
+        var command = new UpdateProductCommand(id, dto.Name, dto.PriceAmount, dto.PriceCurrency);
+        await mediator.Send(command, cancellationToken);
+        return Results.Accepted("/products/{id}", id);
+    })
+    .WithName("UpdateProduct");
 
 app.MapGet(
     "/products",
@@ -69,9 +82,10 @@ app.MapGet(
         [FromBody] GetProductsPageQuery query,
         IMediator mediator,
         CancellationToken cancellationToken) =>
-{
-    var results = await mediator.Send(query, cancellationToken);
-    return Results.Ok(results);
-});
+    {
+        var results = await mediator.Send(query, cancellationToken);
+        return Results.Ok(results);
+    })
+    .WithName("GetProductsPage");
 
 app.Run();

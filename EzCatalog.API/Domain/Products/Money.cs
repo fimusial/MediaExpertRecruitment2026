@@ -12,7 +12,7 @@ public record Money(decimal Amount, Currency Currency)
     {
         if (Currency != other.Currency)
         {
-            throw new InvalidOperationException("When adding Money objects, currencies must match");
+            throw new InvalidOperationException("When adding Money objects, currencies must match.");
         }
 
         return Add(other.Amount);
@@ -22,7 +22,7 @@ public record Money(decimal Amount, Currency Currency)
     {
         if (Currency != other.Currency)
         {
-            throw new InvalidOperationException("When multiplying Money object, currencies must match");
+            throw new InvalidOperationException("When multiplying Money object, currencies must match.");
         }
 
         return Multiply(other.Amount);

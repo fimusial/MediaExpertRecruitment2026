@@ -34,7 +34,7 @@ public class OperationContext : IOperationContext
             if (correlationId.HasValue)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CorrelationId)} has already been set for this instance of {nameof(OperationContext)}");
+                    $"{nameof(CorrelationId)} has already been set for this instance of {nameof(OperationContext)}.");
             }
 
             correlationId = value;

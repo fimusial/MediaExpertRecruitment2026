@@ -7,15 +7,15 @@
 
 ### TODOS:
 BE:
+ - ~create product endpoint~
  - list products endpoint (with cursor?)
- - create product endpoint (with idempotency key support?)
  - validator with fluent validation
+ - exception handling and response codes
  - unit testing backend
  - HAETEOAS
  - REST API semantics
  - Swagger
  - method and contract documentation
- - (maybe) rate limiting on POST, output caching on GET
 
 FE:
  - bootstrap

@@ -11,8 +11,5 @@ public static partial class LogMessages
     public static partial void LogUnitOfWorkStep(
         this ILogger logger,
         string step,
-        string? transactionId);
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "exception occurred")]
-    public static partial void LogException(this ILogger logger, Exception ex);
+        Guid? transactionId);
 }

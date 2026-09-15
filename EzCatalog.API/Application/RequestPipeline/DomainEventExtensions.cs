@@ -35,7 +35,7 @@ public static class EventExtensions
         var receivedEventTypeName = @event?.GetType().FullName ?? "null";
 
         throw new InvalidOperationException(
-            $"could not instantiate notification for event: {receivedEventTypeName}",
+            $"Could not instantiate notification for event: {receivedEventTypeName}.",
             exception);
     }
 }

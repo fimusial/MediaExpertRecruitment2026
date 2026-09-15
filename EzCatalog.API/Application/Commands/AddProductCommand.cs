@@ -1,3 +1,4 @@
+using System;
 using EzCatalog.Application.RequestPipeline;
 using MediatR;
 
@@ -8,6 +9,6 @@ public record AddProductCommand(
     string Name,
     decimal PriceAmount,
     string PriceCurrency)
-    : IRequest<Unit>, ICommand
+    : IRequest<Guid>, ICommand
 {
 }

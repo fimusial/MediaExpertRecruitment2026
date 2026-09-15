@@ -1,6 +1,6 @@
 ﻿using EzCatalog.Application.Ports;
 
-namespace EzCatalog.Infrastructure.Adapters;
+namespace EzCatalog.Infrastructure.EntityFramework.Adapters;
 
 public class ProductQueryService : IProductQueryService
 {

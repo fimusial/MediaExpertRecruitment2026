@@ -18,7 +18,7 @@ public class DisallowHandlerNestingBehavior<TRequest, TResponse>
     {
         if (Nested)
         {
-            throw new InvalidOperationException("nesting handlers is not allowed");
+            throw new InvalidOperationException("Nesting handlers is not allowed.");
         }
 
         Nested = true;

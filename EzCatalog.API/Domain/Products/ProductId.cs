@@ -11,21 +11,13 @@ public record ProductId
 
     public Guid Value { get; }
 
-    public override string ToString()
-    {
-        return $"{nameof(ProductId)}: {Value}";
-    }
+    public override string ToString() => Value.ToString();
 
     public static ProductId Create(Guid value)
     {
         if (value == Guid.Empty)
         {
-            throw new ArgumentOutOfRangeException(nameof(value), "Guid value for ProductId cannot be empty");
-        }
-
-        if (value.Variant != 7)
-        {
-            throw new ArgumentOutOfRangeException(nameof(value), "Guid value for ProductId must be version 7");
+            throw new ArgumentOutOfRangeException(nameof(value), $"Guid value for {nameof(ProductId)} cannot be empty.");
         }
 
         return new ProductId(value);

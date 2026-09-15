@@ -34,7 +34,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         var product = await repository.GetAsync(ProductId.Create(command.Id), cancellationToken);
         if (product == null)
         {
-            throw new NotFoundException($"{nameof(Product)} with Id {command.Id} was not found");
+            throw new NotFoundException($"{nameof(Product)} with Id {command.Id} was not found.");
         }
 
         if (command.Name != null)

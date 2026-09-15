@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EzCatalog.Application.Commands;
 
-public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Unit>
+public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Guid>
 {
     private readonly ILogger<AddProductCommandHandler> logger;
     private readonly IMediator mediator;
@@ -29,19 +29,19 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Unit>
         this.guidProvider = guidProvider;
     }
 
-    public async Task<Unit> Handle(AddProductCommand command, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(AddProductCommand command, CancellationToken cancellationToken)
     {
         logger.LogHandlerRunning(nameof(AddProductCommandHandler));
 
-        var productId = ProductId.Create(guidProvider.GetNewGuid());
-        var sku = Sku.Create(command.Sku);
-        var name = ProductName.Create(command.Name);
-        var price = new Money(command.PriceAmount, Enum.Parse<Currency>(command.PriceCurrency));
+        var product = Product.Create(
+            guidProvider.GetNewGuid(),
+            command.Sku,
+            command.Name,
+            command.PriceAmount,
+            command.PriceCurrency);
 
-        var product = new Product(productId, sku, name, price);
-        await repository.AddAsync(product, cancellationToken);
-
+        var id = await repository.AddAsync(product, cancellationToken);
         await mediator.DispatchDomainEventsAsync(product, cancellationToken);
-        return Unit.Value;
+        return id;
     }
 }
