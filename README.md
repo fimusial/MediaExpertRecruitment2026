@@ -1,3 +1,30 @@
 # Media Expert Recruitment 2026
  - REST API to serve a catalog of products
  - Connected Angular SPA
+
+### Tech stack:
+ - .NET 10 (current LTS)
+
+### TODOS:
+BE:
+ - list products endpoint (with cursor?)
+ - create product endpoint (with idempotency key support?)
+ - validator with fluent validation
+ - unit testing backend
+ - HAETEOAS
+ - REST API semantics
+ - Swagger
+ - method and contract documentation
+ - (maybe) rate limiting on POST, output caching on GET
+
+FE:
+ - bootstrap
+ - typed API client from the OpenAPI spec
+ - catalog scrolling page
+ - add product form
+ - unit test components
+
+OVERALL:
+ - one click startup
+ - Docker
+ - strong README
