@@ -21,7 +21,9 @@ public sealed class BrowserClientTests : IClassFixture<CatalogApiFactory>
 
     public BrowserClientTests(CatalogApiFactory factory)
     {
-        client = factory.CreateClient();
+        client = factory
+            .WithWebHostBuilder(builder => builder.UseSetting($"{EzCatalog.WebAPI.ServiceCollectionBuilder.AllowedCorsOriginsKey}:0", AllowedOrigin))
+            .CreateClient();
     }
 
     [Fact]
