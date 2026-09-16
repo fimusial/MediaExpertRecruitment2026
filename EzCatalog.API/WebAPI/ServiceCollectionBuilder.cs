@@ -1,7 +1,9 @@
 using System;
 using EzCatalog.WebAPI.ApiDocumentation;
 using EzCatalog.WebAPI.Hypermedia;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,9 @@ public static class ServiceCollectionBuilder
         serviceCollection
             .AddProblemDetails()
             .Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
+
+        serviceCollection.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders =
+            ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedPrefix);
 
         serviceCollection.AddCorsForBrowserClients(configuration);
 

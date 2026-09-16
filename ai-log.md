@@ -18,3 +18,5 @@ BE:
 FE:
  - SPA & SPA.Server with reverse proxy project setup
  - generate form control validators that match the API validation errors
+ - add forwarded header to the proxy
+ - help with README.md

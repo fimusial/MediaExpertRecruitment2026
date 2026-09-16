@@ -39,6 +39,7 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseMiddleware<OperationContextLoggerScopeMiddleware>();
