@@ -1,9 +1,19 @@
 services:
   ezcatalog-api:
     image: ezcatalog-api
+    environment:
+      TrustedProxyNetworks__0: 10.0.0.0/8
+      TrustedProxyNetworks__1: 172.16.0.0/12
+      TrustedProxyNetworks__2: 192.168.0.0/16
   ezcatalog-spa:
     depends_on:
       - ezcatalog-api
     image: ezcatalog-spa
+    environment:
+      ASPNETCORE_URLS: https://+:7200
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/ezcatalog-spa.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ezcatalog-dev
+    volumes:
+      - ${USERPROFILE:-~}/.aspnet/https:/https:ro
     ports:
       - 127.0.0.1:7200:7200

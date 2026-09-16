@@ -14,8 +14,8 @@ namespace EzCatalog.WebAPI;
 public static class ServiceCollectionBuilder
 {
     public const string OpenApiDocumentName = "v1";
-
     public const string AllowedCorsOriginsKey = "AllowedCorsOrigins";
+    public const string TrustedProxyNetworksKey = "TrustedProxyNetworks";
 
     public static IServiceCollection AddWebAPI(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
@@ -23,8 +23,7 @@ public static class ServiceCollectionBuilder
             .AddProblemDetails()
             .Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 
-        serviceCollection.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders =
-            ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedPrefix);
+        serviceCollection.AddForwardedHeadersFromProxies(configuration);
 
         serviceCollection.AddCorsForBrowserClients(configuration);
 
@@ -41,6 +40,21 @@ public static class ServiceCollectionBuilder
         });
 
         return serviceCollection;
+    }
+
+    private static IServiceCollection AddForwardedHeadersFromProxies(this IServiceCollection serviceCollection, IConfiguration configuration)
+    {
+        var trustedProxyNetworks = configuration.GetSection(TrustedProxyNetworksKey).Get<string[]>() ?? Array.Empty<string>();
+
+        return serviceCollection.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedPrefix;
+
+            foreach (var network in trustedProxyNetworks)
+            {
+                options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+            }
+        });
     }
 
     private static IServiceCollection AddCorsForBrowserClients(this IServiceCollection serviceCollection, IConfiguration configuration)
