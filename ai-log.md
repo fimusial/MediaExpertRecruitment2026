@@ -13,10 +13,10 @@ BE:
  - add Swager and OpenAPI spec
  - generate ALL unit tests for the API
  - last check: did I miss something? is something clearly wrong?
- - help with README
+ - help with README.md
 
 FE:
- - SPA & SPA.Server with reverse proxy project setup
+ - project setup: SPA & SPA.Server with reverse proxy
  - generate form control validators that match the API validation errors
  - add forwarded header to the proxy
  - help with README.md
