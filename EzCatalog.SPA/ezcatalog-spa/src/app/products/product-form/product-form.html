@@ -1,0 +1,101 @@
+<form class="container py-4" [formGroup]="formGroup" (ngSubmit)="submit()">
+  @let name = formGroup.controls.name;
+  @let sku = formGroup.controls.sku;
+  @let priceUnits = formGroup.controls.priceUnits;
+  @let priceDecimals = formGroup.controls.priceDecimals;
+
+  @let nameError = name.errors?.['message'];
+  @let skuError = sku.errors?.['message'];
+  @let priceError = formGroup.errors?.['priceError']['message'];
+
+  @let nameInvalid = name.touched && name.invalid;
+  @let skuInvalid = sku.touched && sku.invalid;
+  @let priceInvalid = !!priceError && (priceUnits.touched || priceDecimals.touched);
+
+  @let submitDisabled = formGroup.invalid || submitting();
+
+  <h1 class="h4 mb-4">Add product</h1>
+
+  <div class="mb-3">
+    <label class="form-label" for="product-name">Name</label>
+    <input
+      id="product-name"
+      class="form-control"
+      type="text"
+      formControlName="name"
+      required
+      [class.is-invalid]="nameInvalid"
+    />
+    @if (nameInvalid) {
+      <div class="invalid-feedback d-block">{{ nameError }}</div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="product-sku">SKU</label>
+    <input
+      id="product-sku"
+      class="form-control"
+      type="text"
+      formControlName="sku"
+      required
+      [class.is-invalid]="skuInvalid"
+    />
+    @if (skuInvalid) {
+      <div class="invalid-feedback d-block">{{ skuError }}</div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="product-price-units">Price</label>
+    <div class="input-group">
+      <input
+        id="product-price-units"
+        class="form-control text-end"
+        type="text"
+        inputmode="numeric"
+        maxlength="16"
+        formControlName="priceUnits"
+        required
+        [class.is-invalid]="priceInvalid"
+        (input)="keepDigitsOnly(priceUnits)"
+      />
+      <span class="input-group-text">.</span>
+      <input
+        id="product-price-decimals"
+        class="form-control flex-grow-0 w-auto"
+        type="text"
+        inputmode="numeric"
+        maxlength="2"
+        size="2"
+        formControlName="priceDecimals"
+        aria-label="Price decimal places"
+        (input)="keepDigitsOnly(priceDecimals)"
+      />
+      <select
+        class="form-select flex-grow-0 w-auto"
+        formControlName="priceCurrency"
+        aria-label="Currency"
+      >
+        @for (currency of currencies; track currency) {
+          <option [value]="currency">{{ currency }}</option>
+        }
+      </select>
+    </div>
+    @if (priceInvalid) {
+      <div class="invalid-feedback d-block">{{ priceError }}</div>
+    }
+  </div>
+
+  <button
+    class="btn btn-primary w-100"
+    type="submit"
+    [disabled]="submitDisabled"
+  >
+    Add product
+  </button>
+
+  @if (submitFailed()) {
+    <p class="text-danger mt-2 mb-0">Whoops, something went wrong...</p>
+  }
+</form>

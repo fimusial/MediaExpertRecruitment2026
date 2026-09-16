@@ -21,6 +21,7 @@ npm run generate:api
 ## Run the SPA
 ```
 cd ./EzCatalog.SPA/EzCatalog.SPA.Server
+dotnet build # builds the SPA too
 dotnet run
 ```
 
@@ -45,6 +46,7 @@ Data lives in an in-memory database seeded sample products on startup, so no dat
 ## Run the API
 ```
 cd ./EzCatalog.API
+dotnet build
 dotnet run --project .\WebAPI\WebAPI.csproj
 ```
 
