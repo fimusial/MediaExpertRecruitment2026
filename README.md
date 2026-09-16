@@ -31,17 +31,16 @@ Data lives in an in-memory database seeded sample products on startup, so no dat
 
 ## Tech stack
  - .NET 10, ASP.NET Core
- - Layered (DDD): Domain, Application, Infrastructure, WebAPI
- - MediatR (commands, queries, pipeline behaviors), FluentValidation
- - Entity Framework Core (in-memory provider)
+ - DDD + Clean Architecture
+ - MediatR, FluentValidation
+ - Entity Framework Core (as in-memory DB)
  - OpenAPI 3.1 + Swagger UI, HATEOAS
  - xUnit v3, FluentAssertions, NSubstitute
- - StyleCop and .NET analyzers, warnings treated as errors
  - Docker
 
 ## Requirements
  - .NET 10 SDK (required)
- - Docker (optional)
+ - Docker (optional, to build images)
 
 ## Run the API
 ```
