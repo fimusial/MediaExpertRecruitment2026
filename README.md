@@ -2,7 +2,27 @@
 TODO!
 
 ## Tech stack
-TODO!
+ - Angular 22, TypeScript 6, RxJS 7
+ - Bootstrap 5.3
+ - .NET 10, ASP.NET Core
+ - YARP reverse proxy
+
+## Requirements
+ - Node.js 22.22+ or 24.15+ (required)
+ - .NET 10 SDK (required)
+ - JRE 11+ (only to regenerate the OpenAPI client)
+
+## Regenerate OpenAPI Client
+```
+cd EzCatalog.SPA/ezcatalog-spa
+npm run generate:api
+```
+
+## Run the SPA
+```
+cd ./EzCatalog.SPA/EzCatalog.SPA.Server
+dotnet run
+```
 
 # EzCatalog API
 REST API serving a catalog of products: paged browsing with a cursor, plus creating and updating single products.
@@ -10,7 +30,7 @@ Responses are hypermedia-driven, clients enter at `/` and follow the `_links` of
 Data lives in an in-memory database seeded sample products on startup, so no database setup is needed to run it.
 
 ## Tech stack
- - .NET 10
+ - .NET 10, ASP.NET Core
  - Layered (DDD): Domain, Application, Infrastructure, WebAPI
  - MediatR (commands, queries, pipeline behaviors), FluentValidation
  - Entity Framework Core (in-memory provider)
@@ -23,8 +43,9 @@ Data lives in an in-memory database seeded sample products on startup, so no dat
  - .NET 10 SDK (required)
  - Docker (optional)
 
-## Run
-```bash
+## Run the API
+```
+cd ./EzCatalog.API
 dotnet run --project .\WebAPI\WebAPI.csproj
 ```
 
