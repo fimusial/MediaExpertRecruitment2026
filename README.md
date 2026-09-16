@@ -1,5 +1,5 @@
 # EzCatalog UI
-An Angular SPA application connected to the [EzCatalog API](# EzCatalog API) through a reverse proxy.
+An Angular SPA application connected to the [API](#ezcatalog-api) through a reverse proxy.
 The application allows users to browse the product catalog served by the API and create new products.
 
 ![image](ui-sample.png)
