@@ -36,7 +36,7 @@ Data lives in an in-memory database seeded with sample products on startup, so n
 
 ## Tech stack
  - .NET 10, ASP.NET Core
- - DDD + Clean Architecture
+ - DDD + Clean Architecture based on my own [DDDServiceSample](https://github.com/fimusial/DDDServiceSample)
  - MediatR, FluentValidation
  - Entity Framework Core (as in-memory DB)
  - OpenAPI 3.1 + Swagger UI, HATEOAS
