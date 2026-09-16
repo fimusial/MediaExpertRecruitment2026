@@ -157,4 +157,5 @@ if (app.Configuration.GetValue<bool>("SeedTestDataOnStartup") && !isGeneratingOp
     await catalogDbContext.Database.EnsureCreatedAsync(app.Lifetime.ApplicationStopping);
 }
 
+Console.WriteLine("enabling low prices...");
 await app.RunAsync();

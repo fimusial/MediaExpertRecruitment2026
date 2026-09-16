@@ -1,0 +1,2 @@
+docker image build --file ".\EzCatalog.API\WebAPI.Dockerfile" ".\EzCatalog.API" --tag ezcatalog-api
+docker image build --file ".\EzCatalog.SPA\SPA.Server.Dockerfile" ".\EzCatalog.SPA" --tag ezcatalog-spa

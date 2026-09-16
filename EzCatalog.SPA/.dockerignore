@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/*.user
+**/node_modules/
+**/.angular/
+EzCatalog.SPA.Server/wwwroot/

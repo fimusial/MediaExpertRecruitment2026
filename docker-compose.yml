@@ -1,0 +1,9 @@
+services:
+  ezcatalog-api:
+    image: ezcatalog-api
+  ezcatalog-spa:
+    depends_on:
+      - ezcatalog-api
+    image: ezcatalog-spa
+    ports:
+      - 127.0.0.1:7200:7200
