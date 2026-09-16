@@ -81,7 +81,7 @@ public class GlobalExceptionHandlerMiddleware
         {
             ValidationException validationException => new HttpValidationProblemDetails(
                 validationException.Errors
-                    .GroupBy(error => ToJsonPropertyName(error.PropertyName))
+                    .GroupBy(error => JsonNamingPolicy.CamelCase.ConvertName(error.PropertyName))
                     .ToDictionary(group => group.Key, group => group.Select(error => error.ErrorMessage).ToArray()))
             {
                 Status = StatusCodes.Status400BadRequest,
@@ -95,16 +95,6 @@ public class GlobalExceptionHandlerMiddleware
         };
 
         static ProblemDetails Create(int status, string detail) => new ProblemDetails { Status = status, Detail = detail };
-    }
-
-    private static string ToJsonPropertyName(string propertyName)
-    {
-        if (string.IsNullOrEmpty(propertyName))
-        {
-            return propertyName;
-        }
-
-        return string.Join('.', propertyName.Split('.').Select(JsonNamingPolicy.CamelCase.ConvertName));
     }
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception, IOperationContext? operationContext)
