@@ -10,4 +10,8 @@ export const routes: Routes = [
     path: 'products/new',
     loadComponent: () => import('./products/product-form/product-form').then((m) => m.ProductForm),
   },
+  {
+    path: 'error/:status',
+    loadComponent: () => import('./errors/server-error/server-error').then((m) => m.ServerError),
+  },
 ];

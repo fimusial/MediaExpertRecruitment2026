@@ -1,0 +1,9 @@
+.container {
+  min-width: 350px;
+  max-width: 800px;
+}
+
+.status-code {
+    font-size: clamp(6rem, 25vw, 12rem);
+    line-height: 1;
+}
