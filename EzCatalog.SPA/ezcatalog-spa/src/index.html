@@ -5,7 +5,14 @@
   <title>EzCatalogSpa</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    const darkScheme = matchMedia('(prefers-color-scheme: dark)');
+    const applyTheme = () => document.documentElement.dataset.bsTheme = darkScheme.matches ? 'dark' : 'light';
+    applyTheme();
+    darkScheme.addEventListener('change', applyTheme);
+  </script>
 </head>
 <body>
   <app-root></app-root>

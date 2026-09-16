@@ -1,5 +1,9 @@
 # EzCatalog UI
-TODO!
+An Angular SPA application connected to the [EzCatalog API](# EzCatalog API) through a reverse proxy.
+The application allows users to browse the product catalog served by the API and create new products.
+
+![image](ui-sample.png)
+...aaaaaand it has a Dark mode (based on your browser setting).
 
 ## Tech stack
  - Angular 22, TypeScript 6, RxJS 7
