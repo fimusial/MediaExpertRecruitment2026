@@ -7,6 +7,7 @@ import {
   productNameValidator,
   skuValidator,
 } from './product-validators';
+import { RouterModule } from '@angular/router';
 
 type Currency = AddProductRequest.PriceCurrencyEnum;
 const Currency = AddProductRequest.PriceCurrencyEnum;
@@ -14,13 +15,13 @@ const Currency = AddProductRequest.PriceCurrencyEnum;
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterModule],
   selector: 'ez-catalog-product-form',
   styleUrl: './product-form.css',
   templateUrl: './product-form.html',
 })
 export class ProductForm {
-  private readonly products = inject(ProductsService);
+  private readonly api = inject(ProductsService);
   protected readonly currencies = Object.values(Currency);
   protected readonly defaults = {
     name: 'New product',
@@ -30,8 +31,8 @@ export class ProductForm {
     priceCurrency: Currency.Pln,
   };
 
-  submitting = signal<Boolean>(false);
-  submitFailed = signal<Boolean>(false);
+  submitting = signal<boolean>(false);
+  submitFailed = signal<boolean>(false);
 
   formGroup = new FormGroup({
     name: new FormControl(this.defaults.name, { nonNullable: true, validators: productNameValidator }),
@@ -62,7 +63,7 @@ export class ProductForm {
         priceCurrency: form.priceCurrency,
     };
 
-    this.products
+    this.api
       .addProduct(product)
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
