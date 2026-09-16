@@ -30,9 +30,9 @@ dotnet run
 ```
 
 # EzCatalog API
-REST API serving a catalog of products: paged browsing with a cursor, plus creating and updating single products.
-Responses are hypermedia-driven, clients enter at `/` and follow the `_links` of each resource.
-Data lives in an in-memory database seeded sample products on startup, so no database setup is needed to run it.
+REST API managing a catalog of products: paged browsing with a cursor; reading, creating, and updating individual products.
+Responses are hypermedia-driven, clients can enter at `/` and follow the `_links` of each resource.
+Data lives in an in-memory database seeded with sample products on startup, so no database setup is needed to run it.
 
 ## Tech stack
  - .NET 10, ASP.NET Core
